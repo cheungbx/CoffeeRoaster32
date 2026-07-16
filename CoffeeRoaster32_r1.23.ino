@@ -8,7 +8,7 @@
 #include "esp_mac.h"       // Native ESP-IDF hardware register library for eFuse MAC extraction
 
 // Release tracking constant
-const String RELEASE_VERSION = "1.22"; // INCREMENTED: Release version bump
+const String RELEASE_VERSION = "1.23"; // INCREMENTED: Release version bump
 
 // 2. Add explicit type mapping for legacy libraries to avoid core breakages
 typedef uint8_t u8_t;
@@ -24,13 +24,17 @@ typedef int32_t s32_t;
 #pragma GCC diagnostic pop 
 
 // --- Configuration Flags ---
-const int DebugLevel = 2;
+const int DebugLevel = 3; // 1 - summary, 2 - detail. 3 - show wifi password.
 
 // --- ESP32 Hardware Pins ---
 const int TemperaturePin = 16; 
 const int TimePin        = 17; 
 const int OnOffPin       = 18; 
 const int FanPin         = 19; 
+const int FanPressDegree = 40;
+const int OnOffPressDegree = 40;
+const int pressTime = 300;
+const int afterPressTime = 300;
 
 // --- Servo Instances ---
 Servo ServoTemperature;
@@ -122,7 +126,7 @@ OpModeOption pendingOpMode = MODE_WIFI;
 
 // --- Forward Declarations ---
 String getFormattedTime(int totalSeconds);
-void executeServoPress(Servo &srv);
+void executeServoPress(Servo &srv, int degree);
 void adjustTemperature(int targetTemp);
 void adjustFanSpeed(int targetSpeed);
 void setMaximumRoastingTime();
@@ -149,11 +153,11 @@ void computeDynamicAPProperties() {
 }
 
 // --- Servo Manipulations ---
-void executeServoPress(Servo &srv) {
-  srv.write(50);
-  delay(300);
+void executeServoPress(Servo &srv, int degree) {
+  srv.write(degree);
+  delay(pressTime);
   srv.write(0);
-  delay(100);
+  delay(afterPressTime);
 }
 
 void setMaximumRoastingTime() {
@@ -189,7 +193,7 @@ void adjustTemperature(int targetTemp) {
   ServoTemperature.write(90);    
   
   lastTemperature = targetTemp;
-  delay(500);
+  delay(300);
 }
 
 void adjustFanSpeed(int targetSpeed) {
@@ -208,7 +212,7 @@ void adjustFanSpeed(int targetSpeed) {
       Serial.printf("[%s] [Hardware] Adjusting Fan from %d to %d requiring %d presses\n", getFormattedTime(totalRemainingTimeSec).c_str(), lastFanSpeed, targetSpeed, presses);
     }
     for (int i = 0; i < presses; i++) {
-      executeServoPress(ServoFan);
+      executeServoPress(ServoFan, FanPressDegree);
     }
   }
   lastFanSpeed = targetSpeed;
@@ -410,6 +414,9 @@ bool executeWifiConnectionProcess() {
   WiFi.mode(WIFI_STA);
   Serial.printf("[%s] [Network Status] Operational Mode: WIFI STATION\n", getFormattedTime(totalRemainingTimeSec).c_str());
   Serial.printf("[%s] [Network Status] Connecting to target SSID: %s\n", getFormattedTime(totalRemainingTimeSec).c_str(), clientSsid.c_str());
+  if (DebugLevel >= 3) {
+    Serial.printf("[%s] [Network Status] with Password: %s\n", getFormattedTime(totalRemainingTimeSec).c_str(), clientPassword.c_str());
+  }
   WiFi.begin(clientSsid.c_str(), clientPassword.c_str());
   
   unsigned long startAttempt = millis();
@@ -928,7 +935,7 @@ void loop() {
       if (DebugLevel >= 1) {
         Serial.printf("[%s] [Sequence] Starting Roasting Cycle. Pressing On/Off switch once.\n", getFormattedTime(totalRemainingTimeSec).c_str());
       }
-      executeServoPress(ServoOnOff);
+      executeServoPress(ServoOnOff,OnOffPressDegree);
       setMaximumRoastingTime();
       adjustTemperature(instructions[currentInstructionIdx].temperature);
       adjustFanSpeed(instructions[currentInstructionIdx].fanSpeed);
@@ -961,7 +968,7 @@ void loop() {
           if (DebugLevel >= 1) {
             Serial.printf("[%s] [Sequence] All instruction phases finished. Triggering Cool Down.\n", getFormattedTime(totalRemainingTimeSec).c_str());
           }
-          executeServoPress(ServoOnOff); 
+          executeServoPress(ServoOnOff,OnOffPressDegree); 
           currentState = Cooldown;
           
           rawProfileInput = beanName + "\n";
