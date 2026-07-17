@@ -19,6 +19,41 @@ const String RELEASE_VERSION = "1.31"; // INCREMENTED: Updated to reflect Hardwa
 [Wiring Reference Table Extensions]
 Peripheral    Pin  ESP32   Target Pin Pin Function / Notes
 Kill Switch   -   GND / GPIO 4 Internal pullup input hardware switch (Interrupt Driven)
+
+
+/*
+Important (RTD Jumper Settings) on MAX31865 to connect to a 3-wire Temperature Sensor pt100 
+Ensure the solder jumpers on your MAX31865 breakout board match the physical PT100 probe you are using:
+For a 3-wire PT100 probe (most common for roasters): Cut the 24 Wire trace, solder the 3 Wire jumper closed, and solder the 2/3 Wire jumper closed.
+For a 2-wire / 4-wire PT100 probe: Configure the jumpers according to your manufacturer's breakout schematic.
+
+Screw Terminal  Connection
+F+              Matched Wire 1 (e.g., Blue)
+RTD+            Matched Wire 2 (e.g., Blue)
+RTD-            Unmatched Wire (e.g., Red)
+F-              Leave empty (The on-board jumpers handle bridging this)
+
+Wiring Reference Table
+Peripheral    Pin  ESP32   Target Pin Pin Function / Notes
+
+MAX31865      VCC/VIN 3.3V    Power (3.3V logic)
+MAX31865      GND     GND     Ground Reference
+MAX31865      CLK     GPIO 14 Software SPI Clock (CLK)
+MAX31865      SDO     GPIO 25 Software SPI Master In Slave Out (MISO)
+MAX31865      SDI     GPIO 23 Software SPI Master Out Slave In (MOSI)
+MAX31865      CS      GPIO 5  Software SPI Chip Select (CS)
+MAX31865      RDY     NC      No need to connect, it pulls low when temperature data is ready for collectioon. Adafruit library handles polling directly over SPI.
+OLED SSD1306
+SSD1306       VCC     3.3V    Power (3.3V)
+SSD1306       GND     GND     Ground Reference
+SSD1306       SDA     GPIO 26 Custom I2C Data Line
+SSD1306       SCL     GPIO 22 Custom I2C Clock Line
+Servo's       Brown   GND
+servo's       Red     3.3V
+Time Servo    Orange  GPIO16
+Temperature   Servo Orange  GPIO17
+OnOff Servo   Orange  GPIO18
+Fan Servo     Orange  GPIO19
 */
 
 // 2. Add explicit type mapping for legacy libraries to avoid core breakages
