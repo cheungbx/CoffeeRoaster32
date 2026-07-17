@@ -1,0 +1,147 @@
+Coffee Roaster Change Log.
+Logs of Prompts sends to Gemini AI.
+ Release 0.1
+Change to  Serial.begin(74880);
+Change to String apSsid = "Roaster"; 
+Logs the following:
+Whether running in testMode or production mode.
+the WIFI mode being used: standalone or WIFI, the IP address of this device. 
+If in standalone mode, logs the SSID of the STanalone WIFI AP If in WIFI mode,  logs the SSID and this device is attempting to connect to, logs the status of the connection, and any failed connections.
+logs the IP address of the client connected to this device. 
+
+When the input is keyed into The input page, it timeout and refreshes too quickly. The user cannot input anything, nor use the cut and paste function on the iphone to transfer the roasting profile to the input field.
+
+
+ Release 0.2
+
+Add current status of  Input, confirm, roasting, paused to the web page before the Total Time.
+Remove all codes for the testRun mode.
+Logs the roasting time for each line of roasting instruction.
+Add the header “mm:ss” to all longs presenting the Total Remaining time.
+Change the completion message from “Process Complete” to “Roasting Done. Cooldown 5 minutes”.
+
+ Release 1.0 
+
+Switching the board from ESP8266 to ESP32-WROOM-32-4Mb. Adjust the code where required including assigning new pins for the Servomotors.
+Fix compilation error: Compilation error: 'RTC_CNTL_BROWNOUT_REG' was not declared in this scope; did you mean 'RTC_CNTL_BROWN_OUT_REG'?
+
+	 Release 1.1
+		set the register to fix the brownout  error at start up.
+		Fix the reboot problem, by adding an explicit Watchdog yield (vTaskDelay) or standard delay(1) inside the network attachment, ensuring the background tasks are fed, and wrapping the code updates safely.
+Here is the updated initialization block. Update your setup() function and the top of your sketch with these adjustments:
+
+
+	 Release 1.2
+the duration in second has been incorrectly calculated as minutes by statements simular to this. please fix all such occurrences.
+animate the spinner directly in the browser's frontend using simple HTML/CSS or JavaScript. This takes the processing load entirely off your ESP32's state machine loop.
+
+when cool down is complete. display the message "Cooldown complete. Press restart to roast again. Change the name of the reset button on the web page to Restart.
+
+ Release 1.3
+remove all “mm:ss” prefixes before the actual time display on web page.
+While Roasting is in progress, allow users to change the Roast time, Temperature and Fan speed on any Roasting instructions except the instructions already processed. Then dynamically adjust the temperature, fan speed and the remaining time for this step, and the remaining time for the entire roasting process. Refreshes these on the web page. Locks down the steps already completed.
+ Release 1.4
+Add a release number such that everyone you modified the code, the comment release number will be incremented. Start with release 1.4 in this version.
+The Standalone AP wifi SSID shows Roaster000000 i, 000000 should be replaced with the last 6 hexadecimal digits of the MAC address of the ESP. 
+Remove the single client protection. Allow all clients to connect.
+After roasting is done, and cooldown started, store the final roasting profile to EEProm including the changes by the users during the Roasting process.
+
+ Release 1.5
+The SSID is still Roaster000000.
+All the Logs are gone. please restore all the logs with the remaining time hh:ss as headier.
+Add Release number to the title of the Web page e.g. “Coffee Roaster 1.5”.
+Release 1.6
+The SSID MAC Address problem is still there still showing as "Roaster000000" not the MAC address.
+Release 1.7
+Put back release number as comment on the top of the sketch starting with release 1.7 
+and reflect that on the title of web page “Coffee Roaster 1.7
+The SSID MAC Address problem is still unresolve, SSID of the standalone AP still showing as "Roaster000000" not the MAC address.
+
+Release 1.8 - AI completely lost memory and mix this project up with the SourDough, and replaced all core coffee roaster machine with that from the  Sourdough machine. I have to restore the  back coffee machine code from GTI hub and restart from there.
+
+Base on the attached code, adjust the following:
+Add a const to store the release number such that everyone you modified the code, the release number will be incremented. Start with release 1.8  in this version. Update this release number every time I ask you to modify the code.
+
+
+Change the title of the web page from “Coffee Bean Roaster” to “Coffee Roaster 1.8” where 1.8 is the release number.
+
+
+Remove all “mm:ss” prefixes before the actual time display on web page.
+
+
+Add back the “mm:ss” header to the log messages.
+
+
+While Roasting is in progress, allow users to change the Roast time, Temperature and Fan speed on any Roasting instructions except the instructions already processed. Then dynamically adjust the temperature, fan speed and the remaining time for this step, and the remaining time for the entire roasting process. Refreshes these on the web page. Locks down the steps already completed.
+
+
+After roasting is done, and cooldown started, store the final roasting profile to EEProm including the changes by the users during the Roasting process.
+
+
+Change the standalone WIFI AP password to “98729981”.
+
+
+Remove the single client protection. Allow all clients to connect.
+
+
+The SSID of standalone WIFII AP is incorrectly formatted as Roaster000000 instead of Roaster followed by last six digits of the MAC address, The reason WiFi.macAddress() is still returning zeros is due to a known quirk in the ESP32/ESP8266 network stack initialization timing: even after calling WiFi.mode(), the high-level wrapper can sometimes fail to query the system registers fast enough before the radio interface fully boots up. To solve this permanently, we can bypass the high-level WiFi.macAddress() wrapper entirely and call the native ESP-IDF hardware function esp_read_mac(). This function pulls the unique factory-burned MAC address directly from the chip's eFuse registers. It works instantly at boot time regardless of the current Wi-Fi state or mode.Additionally, the string assignment inside computeDynamicAPProperties needs to explicitly set the base name to "Roaster" instead of appending to the global string instance, which avoids compound appending bugs.
+
+
+
+
+
+Release 1.20
+*1.  All logs need mm:ss header added, mm:ss is the remaining time of roasting when roasting has started.
+*2. When roasting started, on “Active Profile:” display on the page, show “Roasting Profile:”,  instead of showing “Step 1:” show “1:” to simplify the look. Change format of “Time (s)” to mm:ss: and allow mm and ss to be edited as a single field”. Apply standard validation rules for mm:ss. 
+*3. When roasting started, as the web page refreshes too quickly, it’s hard for user to edit each roasting instruction due to frequent timeout.
+*4. When reset is pressed, the iphone shows “System Resetting” but cannot automatically reconnect to the web page and show the home page. You have to exit and restart the browser to see the home page again. Can we allow an automatic redirect ?
+Release 1.21:
+AP Password Updated: Changed the fallback Access Point password to new one.
+Dynamic Live Step Updates (Real-Time Actuation): When modifying a step using the web UI, the code now checks if the edited instruction is the currently executing step. If it is, it explicitly compares the new values against the actively working hardware states (lastTemperature and lastFanSpeed). If a change is detected, it instantly triggers the corresponding servo routines (adjustTemperature, adjustFanSpeed, and resetting the time servo via setMaximumRoastingTime) to apply the modifications immediately mid-roast.
+Release 1.22:
+*1 After this log, 
+[03:20] [Hardware] Turning Time Servo Clockwise to Max (20 mins)
+[03:25] [Hardware] Temp change from 180C to 230C. Diff: 50. Running servo for 5000 ms
+ESP32 rebooted with this error:
+E (94800) task_wdt: Task watchdog got triggered. The following tasks/users did not reset the watchdog in time:
+
+Release 1.23:
+*1 Add Roast time validation to the Roasting profile input as well as  the roasting instruction updates while roasting is running- valid time is from 1 second to 20 minutes.
+
+Release 1.24:
+*1 Improved accuracy of the temperature adjustment by first setting to the maximum 240C or the minimum 150C ( whichever is closer to the last temperature)  by extra Servo duration than required. Then adjust accurate time to the target temperature from 240C or 150C. This will avoid a temperature adjustment inaccuracy to be add on to and  drifted from one adjustment to the next.  
+*2 WIFI failed to connect the first time after the WIFI setting was erased. Confirmed this is a hardware/power issue. To connect WIFI for the first time, a more stable power right from the power adaptor is required instead of connecting to the PC’s USB port. After the initial connection, WIFI connects fine even when powered by the USB port of the PC.
+
+Release 1.25:
+*1 Tuned temperature adjustment duration/degree ratio.
+*2 Use separate Servo pressing angles for FanServo and the OnOffServo and increase the angle to assert larger pressing force. The position and size (1mm larger than the diameter of the actual tic tac switch component hidden behind the plastic film is required need to be accurate. You need to remove the plastic film to find the accurate position of these switches, the drawing on the plastic film my be inaccurate and misguide you.
+*3 Add a safety measure to adjust temperature to 150C and time to 1min to  ensure the roaster cools down at the end of roasting incase the OnOff presser got loose and fails to press the button.  
+
+Release 1.26:
+
+Modify the  attached sketch of the latest release 1.25 for the Coffee Roaster with the following:
+*1 I connected a pt100 temperature sensor to the max31865. Assign pins and adds current temperature sensed by pt100 and the target temperature to the Web page on the top after Total Time. 
+
+*2 Assign pins to add an I2C SSD1306 OLED. Avoid GPIO 21 in pin assignment. Display the Title “Auto Roaster “ & the release number, the WIFI SSID and IP address both in standalone mode and in WIFI mode, the Status, the Total/Remaining time, the target temperature and the temperature sensed by pt100. 
+
+
+Release 1.28:
+Change AP SSID to “Beanxxxxxx”.
+
+Release 1.29:
+modify the attached code to restructure the display when Roasting has started to the following: 
+Title
+Line Seperator
+Total Time
+Fan speed
+Target Temperature
+Current Temperature
+Step Time
+
+Release 1.30:
+Refer to the attached code. 
+*1 Tidy up OLED display during Roasting.
+*2 do not display current temperature if pt100temp < -99 (invalid).
+Release 1.31:
+Refer to the attached code. 
+*1 Add a push button as kill switch. If the button is pressed when Roasting has started, display “Cool Down?”  on the OLED display. If kill switch is pressed again - i.e. confirming to cool down, bypassing all remaining Roasting instructions and proceed to cool down immediately (including pressing the OnOff button.
