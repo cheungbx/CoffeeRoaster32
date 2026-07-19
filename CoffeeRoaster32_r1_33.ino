@@ -45,10 +45,10 @@ SSD1306       SDA     GPIO 26 Custom I2C Data Line
 SSD1306       SCL     GPIO 22 Custom I2C Clock Line
 Servo's       Brown   GND
 servo's       Red     3.3V
-Time Servo    Orange  GPIO16
-Temperature   Servo Orange  GPIO17
-OnOff Servo   Orange  GPIO18
-Fan Servo     Orange  GPIO19
+Temperature Servo     GPIO16
+Time   Servo          GPIO17
+OnOff Servo           GPIO18
+Fan Servo             GPIO19
 */
 
 // 2. Add explicit type mapping for legacy libraries to avoid core breakages
@@ -254,7 +254,7 @@ void setMinimumRoastingTime() {
     Serial.printf("[%s] [Hardware] Turning Time Servo Anti-clockwise to Min (1 min)\n", getFormattedTime(totalRemainingTimeSec).c_str());
   }
   ServoTime.write(0); 
-  delay(5000); 
+  delay(6000); 
   ServoTime.write(90); 
   delay(300);
 }
