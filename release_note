@@ -187,7 +187,7 @@ Refer to the attached code.
 *4 For each Ratio for target temperature, change the logic for Actual Temperature as follows:  add the “Calc” button following the Actual Temperature. When pressed, and if Actual Temperature is not blank. calculate the new Ratio according to this formula: 
  	If target temperature < 195,  current ratio * (target Temperature -150)/ (Actual Temperature - 150)
 if target temperature > 195,  current ratio * (240-target temperature)/ (240 - Actual Temperature)
-Display the new Ratio on the Ratio temperature field. When test button is pressed, use the displayed Ratio Temperature value for the adjustTemperature call. Save this value to EEPROM when the Save button is pressed.
+Display the new Ratio on the Ratio temperature field and blank the Actual Temperature field. When test button is pressed, use the displayed Ratio Temperature value for the adjustTemperature call. Save this value to EEPROM when the Save button is pressed.
 
 *5 In the Servo set up web page, change the validation rules to allow a maximum 2 decimal places for all the Actual Temperature and Ratio. Keep the input validation for OnOff Angle and Fan Angle  as integers.
 
@@ -231,9 +231,7 @@ SSID :
 IP : 
 
 This is the ESP32 Coffee Roasting Automation project. Please do not include any ESP8266 codes. Do not produce the entire code. 
-Keep all previously defined log messages intact, do not try to streamline the code by removing any of the serial.print statements and debug messages.
-
-Only produce an explanation of changes and code snippets for modified sections, not entire list of codes.
+Keep all previously defined log messages intact, do not try to streamline the code by removing any of the serial.print statements and debug messages. Only produce an explanation of changes and code snippets for modified sections, not entire list of codes.
 
 
 
