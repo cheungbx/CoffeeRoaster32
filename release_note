@@ -142,6 +142,99 @@ Release 1.30:
 Refer to the attached code. 
 *1 Tidy up OLED display during Roasting.
 *2 do not display current temperature if pt100temp < -99 (invalid).
-Release 1.31:
+Release 1.33:
 Refer to the attached code. 
-*1 Add a push button as kill switch. If the button is pressed when Roasting has started, display “Cool Down?”  on the OLED display. If kill switch is pressed again - i.e. confirming to cool down, bypassing all remaining Roasting instructions and proceed to cool down immediately (including pressing the OnOff button.
+*1 Add a push button as kill switch assigned to GPIO 4.
+Use interrupt for button detection logic..  If the button is pressed when Roasting has started, display “Cool Down?”  on the OLED display. If kill switch is pressed again - i.e. confirming to cool down, bypassing all remaining Roasting instructions and proceed to cool down immediately (including pressing the OnOff button.
+
+Release 1.34:
+Refer to the attached code. 
+*1 Add a “Servo Set up”  button to the web page for input mode, When pressed , clear the OLED display. Display the following Servo Set Up screen with parameters stored in EEPROM to be edited by user. If not found in EEPROM, use  [default value]. Followed by a test button for each parameter. If the test button for that parameter is pressed, the specific routine is called to test the servo motor function. 
+Servo Set Up screen:
+Title
+Status: Set up
+Line Seperator
+OnOff Angle [default 50]  [test button - pressing this button will invoke executeServoPress(ServoOnOff,the OnOff value input by user);
+
+Fan Angle [default 45]  [test button - pressing this button will invoke executeServoPress(ServoFan, value input by user);
+
+Minimum Time Duration  [default 6000 ms]    [test button - pressing this button will invoke   setRoastingTime(value input by user);
+
+Maximum Time Duration  [default 1500 ms]  [test button - pressing this button will invoke   setRoastingTime(value input by user);
+Ratio 150C [default 45 ms]  [test button - pressing this button will invoke adjustTemperature(150, value input by user); 
+Ratio 240C [default 45ms]  [test button - pressing this button will invoke adjustTemperature(240, value input by user);
+Ratio 160C [default 43 ms]  Actual Temperature [displayed as blank to be input]   [test button - pressing this button will invoke adjustTemperature(160, if Actual Temperature has been input by user, calculate the new ratio = current ratio * (160-150)/ (Actual Temperature - 150), else use value input by user);
+Ratio 170C  [default 43] Actual Temperature  [displayed as blank to be input]   [test button - pressing this button will invoke adjustTemperature(170,  if Actual Temperature has been input by user, calculate the new ratio = current ratio * (170-150)/ (Actual Temperature - 150), else use value input by user);
+Ratio 180C [default 43] Actual Temperature  [displayed as blank to be input]   [test button - pressing this button will invoke adjustTemperature(180,  if Actual Temperature has been input by user, calculate the new ratio = current ratio * (180-150)/ (Actual Temperature - 150), else use value input by user);
+Ratio 190C [default 43] Actual Temperature [displayed as blank to be input]   [test button - pressing this button will invoke adjustTemperature(190,  if Actual Temperature has been input by user, calculate the new ratio = current ratio * (190-150)/ (Actual Temperature - 150), else use value input by user);
+Ratio 240C  [default 41 ms]  Actual Temperature [displayed as blank to be input]   [test button - pressing this button will invoke adjustTemperature(200,  if Actual Temperature has been input by user, calculate the new ratio = current ratio * (240-200)/ (240 - Actual Temperature), else use value input by user);
+Ratio 210C  [default 41 ms]  Actual Temperature [displayed as blank to be input]   [test button - pressing this button will invoke adjustTemperature([210,  if Actual Temperature has been input by user, calculate the new ratio = current ratio * (240-200)/ (240 - Actual Temperature), else use value input by user);
+Ratio 220C  [default 41 ms]  Actual Temperature [displayed as blank to be input]   [test button - pressing this button will invoke adjustTemperature([200,  if Actual Temperature has been input by user, calculate the new ratio = current ratio * (240-220)/ Actual (240 = Temperature), else use value input by user);
+Ratio 230C  [default 41 ms]  Actual Temperature [displayed as blank to be input]   [test button - pressing this button will invoke adjustTemperature([200,  if Actual Temperature has been input by user, calculate the new ratio = current ratio * (240-230)/ (240 - Actual Temperature), else use value input by user);
+
+
+At the bottom of the web page, add a “Cancel” button and a “Save” button. if Save button is pressed, save the new values to EEPROM and apply new values to the Roasting logics. If cancel button is pressed, ignore the new values, return to the previous screen.
+
+Release 1.35:
+
+Refer to the attached code. 
+*1 When saving the Servo set up parameters to EEPROM, it corrupts the roasting profile saved to EEPROM. This may be a EEPROM address conflict.  To fix it , in the EEPROM, move the Servo set up parameters before the Roasting profile. So Roasting profile can be as long as it can be without corrupting other parameters.
+ 
+*2 The OnOff Angle and Fan Angle previously saved becomes corrupted data shown on the servo set  up page. This may not be the same issue as the EEPROM address conflict in *1. Is it a possible web page to variable conversion issue ?
+
+*3 Change Ratio 150C and Ratio 240C to the same format as the other Temperatures. e.g. Ratio 160C, Ratio 230C.
+
+*4 For each Ratio for target temperature, change the logic for Actual Temperature as follows:  add the “Calc” button following the Actual Temperature. When pressed, and if Actual Temperature is not blank. calculate the new Ratio according to this formula: 
+ 	If target temperature < 195,  current ratio * (target Temperature -150)/ (Actual Temperature - 150)
+if target temperature > 195,  current ratio * (240-target temperature)/ (240 - Actual Temperature)
+Display the new Ratio on the Ratio temperature field. When test button is pressed, use the displayed Ratio Temperature value for the adjustTemperature call. Save this value to EEPROM when the Save button is pressed.
+
+*5 In the Servo set up web page, change the validation rules to allow a maximum 2 decimal places for all the Actual Temperature and Ratio. Keep the input validation for OnOff Angle and Fan Angle  as integers.
+
+*6 Change the format of the Menu Selection page as follows:
+	Title
+Status
+Total Time:
+Temperature: 
+Separator
+…. keep the rest unchanged —--
+
+*7 Change the format  of the Roasting page as follows:
+	Title
+Status:
+Total Time:
+Target: (display target temperature in the roasting step)
+Current:  (display current temperature from pt100 with 2 decimal places)
+RoR: aa.bb  C/min (where aa.bb is the Rate of Rise(2 decimal places) – a term in Coffee Roasting that measures the temperature change per minute).
+Separator
+…. keep the rest unchanged —--
+
+*8 Keep all previously defined log messages intact, do not try to streamline the code by removing any of the serial.print statements and debug messages Produce the fully updated source code, followed by an explanation of changes and code snippets for modified sections.
+
+
+*9 Refer to the attached code to fix the following problems: *1 RoR could not be updated and stays at 0.00 C/min all the time. *2 OnOff Angle and Fan Angle could not be saved and restored properly. e.g. OnOff Angle was input as 50 but restored from EEPROM and displayed as 2949170. Fan Angle was input as 45 but restored and displayed as 393216045. 
+
+This is the ESP32 Coffee Roasting Automation project. Please do not include any ESP8266 codes. Do not produce the entire code. 
+Keep all previously defined log messages intact, do not try to streamline the code by removing any of the serial.print statements and debug messages.
+
+Produce the fully updated source code, followed by an explanation of changes and code snippets for modified sections.
+
+*10 Refer to the attached code. Change the format of the OLED screen as follows:
+
+On the OLED start up screen, add the following after the separator:
+Title
+Seperator
+Status: :
+Time :
+Current Temperature  “C” (no subheading)  	RoR: current RoR “C/min”
+SSID : 
+IP : 
+
+This is the ESP32 Coffee Roasting Automation project. Please do not include any ESP8266 codes. Do not produce the entire code. 
+Keep all previously defined log messages intact, do not try to streamline the code by removing any of the serial.print statements and debug messages.
+
+Only produce an explanation of changes and code snippets for modified sections, not entire list of codes.
+
+
+
+
