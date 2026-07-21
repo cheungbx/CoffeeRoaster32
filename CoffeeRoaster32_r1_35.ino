@@ -950,7 +950,8 @@ String generateServoSetupHtml() {
   html += "    }";
   html += "  }";
   html += "  ratioEl.value = newRatio.toFixed(2);";
-  html += "}";
+  html += "  actEl.value = '';"; // Blank out the Actual Temperature input field
+  html += "}";  
   html += "</script>";
 
   html += "</head><body><div class='card'>";
