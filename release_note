@@ -235,4 +235,40 @@ Keep all previously defined log messages intact, do not try to streamline the co
 
 
 
+Release 1.36:
 
+Refer to the attached code. This is the ESP32 Coffee Roasting Automation project. Please do not include any ESP8266 codes. Keep all previously defined log messages intact, do not try to streamline the code by removing any of the serial.print statements and debug messages. 
+Produce the fully updated source code, followed by an explanation of changes and code snippets for modified sections.
+
+
+
+*1 Add a “Chart” button to the Roasting page. When this button is pressed, a new Chart page is displayed as follows:
+Title
+Status:
+Remaining Time:
+Target Temperature
+Current Temperature
+RoR
+Separator
+Roasting Chart
+Seperator
+
+Plot A line chart using native pure HTML5 Canvas /SVG. Do not call any external java scripts: 
+X**  time (cumulated starting from 00:00  when the roasting starts)   heading “Time”, tick marks and scale every minute in mm:ss format , e.g. 1:00 2:00 for 1 minute and 2 minute.
+
+the following values collected every 10 seconds as Y:
+Y1** target temperature from roasting instruction (brown) , heading “Target C”, , tick marks and scale in brown  every 50 C, e.g. -50C, 0C, 50C, 100C, 150C, 200C, 250C, 300C.
+
+Y2** current temp from pt100 (red) , heading “Stove C, no need to add extra tick marks/scale, as they are the same as Y1.
+Y3** RoR (blue), heading “RoR C/min”, tick marks and scale in blue every 10 units, e.g. -30,-20,-10,0,10,20,...,100
+
+Auto refresh the chart every 10 seconds.
+
+Create a temporary .CSV file to store the collected values X,  Y1, Y2 and Y3 in the ESP32 Flash memory of ESP32.
+
+*2 at the bottom of the Chart page, Add a “Return” button. If pressed, go back to the Roasting page.
+ 
+*3 If status == cooldown or done, add a button to allow this file to be downloaded to the user’s device via the web server.
+Erase the temporary file when Roasting is confirmed to start.
+
+*4 The calculateRoR() function calculates the RoR for coffee roasting. But it takes samples every 60 seconds. Modify it such that it takes samples every 10 seconds and keeps a rolling history of the samples from the last minute. Then calculate the RoR based on the sample from 60 seconds ago.
