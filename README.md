@@ -1,1 +1,1 @@
-This code is a rewrite of the coffee roaster code for ESP8266 to function on an ESP32.
+Auto coffee roaster that runs on an ESP32 to control servos to turn switches on a hot air coffe roaster to  measures temperature and RoR and sets the temperature and time of the roasting according to multiple lines of such instructions in a roasting profile.
