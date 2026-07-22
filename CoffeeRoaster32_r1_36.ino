@@ -965,7 +965,7 @@ String generateHtml() {
 
   // Button to allow CSV log download in Cooldown state
   if (currentState == Done || currentState == Cooldown) {
-    html += "<button class='download' onclick='location.href=\"/download_csv\"'>Download Log CSV</button><br>";
+    html += "<button class='download' onclick='location.href=\"/download_csv\"'>Download Chart</button><br>";
   }
   
   html += "<button id='restartInitBtn' class='reset' onclick='exposeRestartConfirmButton()'>Reset</button>";
